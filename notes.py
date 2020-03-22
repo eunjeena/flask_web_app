@@ -21,3 +21,18 @@ p.author -> print out User's repr
 # drop db
 db.drop_all()
 '''
+
+# encrypt password
+'''
+from flask_bcrypt import Bcrypt
+b = Bcrypt()
+
+# create hashed pw
+b.generate_password_hash("test")
+b'$2b$12$LmLkxAzuIjKJ123bsKoC9uMHCfyRXhiVPvFQUySeFQNyWYmkkF.ou'
+b.generate_password_hash("test").decode("utf-8")
+
+# check if pw is correct
+b.check_password_hash(hashed_pw, 'pass:user_typed')
+return T/F
+'''
