@@ -36,3 +36,34 @@ b.generate_password_hash("test").decode("utf-8")
 b.check_password_hash(hashed_pw, 'pass:user_typed')
 return T/F
 '''
+
+# pagination
+'''
+posts = Post.query.paginate()
+dir(posts)  to see all function
+
+# how many posts in a page
+posts.per_page : 20
+
+# current page
+posts.page : 1
+
+# to see 2nd page
+posts = Post.query.pagination(page=2)
+
+# divide post
+posts = Post.query.pagination(per_page=5)
+posts = Post.query.pagination(per_page=5, page=2)
+
+# see total bumber
+posts.total : 25
+
+# to see posts
+for post in posts.items()
+    print(post)
+
+# link of pagination when page_num = 6
+for page in posts.iter_pages():
+    print(page)
+1 2 None 4 .. 10 None 12 13
+'''
