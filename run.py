@@ -1,5 +1,7 @@
 # app variable should exists in __init__.py of that package
-from flaskblog import app
+from flaskblog import create_app
+
+app = create_app()
 
 # to avoid these env settings:
 # export FLASK_APP=<this file name>

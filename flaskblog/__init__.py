@@ -2,35 +2,47 @@
 packaging flask app instead of a module,
 initialize applications and bring different componenets
 '''
-import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
+from flaskblog.config import Config
 
-app = Flask(__name__)
-# app protects against modifying cookies..
-# >>> import secrets
-# >>> secrets.token_hex(16)
-app.config['SECRET_KEY'] = '58c137a362f6cd22dabecdf4ecf42ca8'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)  # can treate db structure as class (Model)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'  # funcion name of route
+# extension objs
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
+mail = Mail()
+
+login_manager.login_view = 'users.login'  # funcion name of route
 # so in this way, if user tries to access account page, direct to login
 # by leaving query param: next=/account
 login_manager.login_message_category = 'info'
 
-# email extension
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-#app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
-#app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
-app.config['MAIL_USERNAME'] = 'cornercat2347@gmail.com'
-app.config['MAIL_PASSWORD'] = '2347stanford'
-mail = Mail(app)
 
-from flaskblog import routes
+def create_app(config_class=Config):
+    '''
+    extension object doesn't initially get bound to application
+    using this design pattern, no application-specific state is stored
+    on the extension object
+    so one extension object can be used for multipe apps
+    '''
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # extension objs
+    db.init_app(app)  # can treate db structure as class (Model)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+
+    from flaskblog.users.routes import users
+    from flaskblog.posts.routes import posts
+    from flaskblog.main.routes import main
+
+    app.register_blueprint(users)
+    app.register_blueprint(posts)
+    app.register_blueprint(main)
+
+    return app

@@ -25,7 +25,7 @@ def about():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -46,7 +46,7 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -57,7 +57,7 @@ def login():
             login_user(exist_user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(
-                url_for('home'))
+                url_for('main.home'))
         else:
             flash('Login Unsuccessful. Please check email and password',
                   'danger')
@@ -67,7 +67,7 @@ def login():
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
 
 
 def save_picture(form_picture):
@@ -104,7 +104,7 @@ def account():
         flash('Your account has been updated!', 'success')
         # post - get - redirect form
         # if we render_template, it reloads without saving
-        return redirect(url_for('account'))
+        return redirect(url_for('users.account'))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -128,7 +128,7 @@ def new_post():
         db.session.add(post)
         db.session.commit()
         flash("Your post has been created!", 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     return render_template('create_post.html',
                            title='New Post',
                            form=form,
@@ -155,7 +155,7 @@ def update_post(post_id):
         post.content = form.content.data
         db.session.commit()  # when only updating, no need add()
         flash('Your post has been updated!', 'success')
-        return redirect(url_for("post", post_id=post.id))
+        return redirect(url_for("posts.post", post_id=post.id))
 
     elif request.method == 'GET':
         # fill existing data
@@ -177,7 +177,7 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
 
 
 @app.route("/user/<string:username>")
@@ -213,7 +213,7 @@ If you did not make this request then simply ignore this email and no changes wi
 def reset_request():
     # if already log-in, no need to reset
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     form = RequestResetForm()
 
     if form.validate_on_submit():
@@ -231,7 +231,7 @@ def reset_request():
 @app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     user = User.verify_reset_token(token)  #return user obj, else None
     if user is None:
         flash('That is an invalid or expired token', 'warning')
